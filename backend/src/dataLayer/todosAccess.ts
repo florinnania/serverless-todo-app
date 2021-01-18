@@ -38,4 +38,13 @@ export class TodosAccess {
     return items as TodoItem[]
   }
 
+  async createTodoItem(todoItem: TodoItem) {
+    logger.info(`Putting todo ${todoItem.todoId} into ${this.todosTable}`)
+
+    await this.docClient.put({
+      TableName: this.todosTable,
+      Item: todoItem,
+    }).promise()
+  }
+
 }
