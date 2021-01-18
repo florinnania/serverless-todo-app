@@ -46,4 +46,27 @@ This should start a development server with the React application that will inte
 
 ### Postman collection
 
-A Postman collection is available in the root folder of the project, as an alternative way to test the API.
+A Postman collection is available in the root folder of the project, as an alternative way to test the API. To import this collection, do the following.
+
+Click on the import button:
+
+![Alt text](images/import-collection-1.png?raw=true "Image 1")
+
+
+Click on the "Choose Files":
+
+![Alt text](images/import-collection-2.png?raw=true "Image 2")
+
+
+Select a file to import:
+
+![Alt text](images/import-collection-3.png?raw=true "Image 3")
+
+
+Right click on the imported collection to set variables for the collection:
+
+![Alt text](images/import-collection-4.png?raw=true "Image 4")
+
+Provide variables for the collection (similarly to how this was done in the course):
+
+![Alt text](images/import-collection-5.png?raw=true "Image 5")
