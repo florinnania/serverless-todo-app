@@ -42,11 +42,11 @@ export async function createTodo(userId: string, createTodoRequest: CreateTodoRe
     const item = await todosAccess.getTodoItem(todoId)
   
     if (!item)
-      throw new Error('Item not found')  // FIXME: 404?
+      throw new Error('Not Found')
   
     if (item.userId !== userId) {
       logger.error(`User ${userId} does not have permission to delete todo ${todoId}`)
-      throw new Error('User is not authorized to delete item')  // FIXME: 403?
+      throw new Error('Forbidden')
     }
   
     todosAccess.deleteTodoItem(todoId)

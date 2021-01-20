@@ -13,8 +13,26 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   const userId = getUserId(event)
   const todoId = event.pathParameters.todoId
-
-  await deleteTodo(userId, todoId)
+  
+  try {
+    await deleteTodo(userId, todoId)
+  } catch (e) {
+    if (e.message == 'Not Found') {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          message: e.message
+        })
+      }
+    } else if (e.message == 'Forbidden'){
+      return {
+        statusCode: 403,
+        body: JSON.stringify({
+          message: e.message
+        })
+      }
+    }
+  }
 
   return {
     statusCode: 204,
