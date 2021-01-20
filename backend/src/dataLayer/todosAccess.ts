@@ -5,6 +5,7 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import * as AWSXRay from 'aws-xray-sdk'
 
 import { TodoItem } from '../models/TodoItem'
+import { TodoUpdate } from '../models/TodoUpdate'
 import { createLogger } from '../utils/logger'
 
 const logger = createLogger('todosAccess')
@@ -71,6 +72,26 @@ export class TodosAccess {
         todoId
       }
     }).promise()    
+  }
+
+  async updateTodoItem(todoId: string, todoUpdate: TodoUpdate) {
+    logger.info(`Updating todo item ${todoId} in ${this.todosTable}`)
+
+    await this.docClient.update({
+      TableName: this.todosTable,
+      Key: {
+        todoId
+      },
+      UpdateExpression: 'set #name = :name, dueDate = :dueDate, done = :done',
+      ExpressionAttributeNames: {
+        "#name": "name"
+      },
+      ExpressionAttributeValues: {
+        ":name": todoUpdate.name,
+        ":dueDate": todoUpdate.dueDate,
+        ":done": todoUpdate.done
+      }
+    }).promise()   
   }
 
 }
