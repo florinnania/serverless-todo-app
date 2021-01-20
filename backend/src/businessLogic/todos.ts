@@ -3,6 +3,7 @@ import 'source-map-support/register'
 import * as uuid from 'uuid'
 
 import { TodosAccess } from '../dataLayer/TodosAccess'
+import { TodosStorage } from '../dataLayer/TodosStorage'
 import { TodoItem } from '../models/TodoItem'
 import { TodoUpdate } from '../models/TodoUpdate'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
@@ -12,6 +13,7 @@ import { createLogger } from '../utils/logger'
 const logger = createLogger('todos')
 
 const todosAccess = new TodosAccess()
+const todosStorage = new TodosStorage()
 
 export async function getTodos(userId: string): Promise<TodoItem[]> {
   logger.info(`Retrieving all todos for user ${userId}`, { userId })
@@ -68,4 +70,32 @@ export async function createTodo(userId: string, createTodoRequest: CreateTodoRe
     }
   
     todosAccess.updateTodoItem(todoId, updateTodoRequest as TodoUpdate)
+  }
+
+  export async function updateAttachmentUrl(userId: string, todoId: string, attachmentId: string) {
+    logger.info(`Generating attachment URL for attachment ${attachmentId}`)
+  
+    const attachmentUrl = await todosStorage.getAttachmentUrl(attachmentId)
+  
+    logger.info(`Updating todo ${todoId} with attachment URL ${attachmentUrl}`, { userId, todoId })
+  
+    const item = await todosAccess.getTodoItem(todoId)
+  
+    if (!item)
+      throw new Error('Not Found')
+  
+    if (item.userId !== userId) {
+      logger.error(`User ${userId} does not have permission to update todo ${todoId}`)
+      throw new Error('Forbidden')
+    }
+  
+    await todosAccess.updateAttachmentUrl(todoId, attachmentUrl)
+  }
+  
+  export async function generateUploadUrl(attachmentId: string): Promise<string> {
+    logger.info(`Generating upload URL for attachment ${attachmentId}`)
+  
+    const uploadUrl = await todosStorage.getUploadUrl(attachmentId)
+  
+    return uploadUrl
   }
