@@ -4,6 +4,8 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-reqvalidator-plugin
+  - serverless-aws-documentation
 
 provider:
   name: aws
@@ -12,12 +14,23 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
 
+  tracing:
+    lambda: true
+    apiGateway: true
+
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_BY_USER_INDEX: TodosByUserIndex
     AUTH_0_JWKS_URL: https://dev-fna-auth.us.auth0.com/.well-known/jwks.json
     IMAGES_S3_BUCKET: todos-images-fna-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+
+custom:
+  documentation:
+    models:
+      - name: TodoRequest
+        contentType: application/json
+        schema: ${file(models/create-todo-request.json)}
 
 functions:
 
@@ -60,6 +73,12 @@ functions:
           path: todos
           cors: true
           auth: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create a new todo
+            description: Create a new todo
+            requestModels:
+              'application/json': TodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -243,3 +262,12 @@ resources:
               Action: 's3:GetObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
